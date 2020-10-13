@@ -8,6 +8,7 @@
 
 #include "CPU.h"
 
+
 const string CPU::regNames[] = {"$zero","$at","$v0","$v1","$a0","$a1","$a2","$a3",
                                 "$t0","$t1","$t2","$t3","$t4","$t5","$t6","$t7",
                                 "$s0","$s1","$s2","$s3","$s4","$s5","$s6","$s7",
@@ -127,14 +128,14 @@ void CPU::decode() {
                    break;
         case 0x18: D(cout << "mult " << regNames[rs] << ", " << regNames[rt]);
                     writeDest = false;
-                    opIsMultDiv = true; stats.destReg(REG_HILO);
+                    opIsMultDiv = true; stats.registerDest(REG_HILO);
                     aluOp = MUL;
                     aluSrc1 = regFile[rs];stats.registerSrc(rs);
                     aluSrc2 = regFile[rt];stats.registerSrc(rt);
                    break;
         case 0x1a: D(cout << "div " << regNames[rs] << ", " << regNames[rt]);
                     writeDest = false;
-                    aluOp = DIV; stats.destReg(REG_HILO);
+                    aluOp = DIV; stats.registerDest(REG_HILO);
                     opIsMultDiv = true;
                     aluSrc1 = regFile[rs];stats.registerSrc(rs);
                     aluSrc2 = regFile[rt];stats.registerSrc(rt);
@@ -302,9 +303,9 @@ void CPU::printFinalStats() {
   cout << "\nBubbles: " << stats.getBubbles() << endl;
   cout << "Flushes: "<< stats.getFlushes() << endl;
 
-  cout << "\nMem ops: " << fixed << setprecision(1) << 100 * stats.getMemOps() / instructions 
+  cout << "\nMem ops: " << fixed << setprecision(1) << 100.0 * stats.getMemOps() / instructions 
       << "% " << " of instructions" << endl;
-  cout << "Branches: " << fixed << setprecision(1) << 100 * stats.getBranches() / instructions 
+  cout << "Branches: " << fixed << setprecision(1) << 100.0 * stats.getBranches() / instructions 
       << "% " << " of instructions" << endl;
-  cout << "% " << "Taken: " << 100 * stats.getTaken() / stats.getBranches() << endl;
+  cout << "% " << "Taken: " << fixed << setprecision(1) << 100.0 * stats.getTaken() / stats.getBranches() << endl;
 }

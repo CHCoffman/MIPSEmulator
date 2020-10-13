@@ -38,7 +38,7 @@ void Stats::registerSrc(int r) {
   //then count bubbles to put in pipeline
   for(int i = EXE1; i < WB; i++){
     int bubs = 0; // num of bubbles needed
-    if(((resultReg[i] == rt) && (rt != 0)) || ((resultReg[i] == rs) && (rs != 0))){
+    if(((resultReg[i] == r) && (r != 0))){
       bubs = WB - i;
 
       //then bubble necessary amount
@@ -60,7 +60,7 @@ void Stats::flush(int count) { // count == how many ops to flush
   //After j beq or bne flush instructions
   for(int i; i < count; i++){
     flushes++;
-    clock(IF1); // inc cycle to get to IF1
+    clock(); // inc cycle to get to IF1
   }
 }
 
@@ -68,7 +68,7 @@ void Stats::bubble() {
   //NOPS
   bubbles++;
 
-  clock(EXE1); // inc cycle to exe, bubs done decode
+  clock(); // inc cycle to exe, bubs done decode
 }
 
 void Stats::showPipe() {

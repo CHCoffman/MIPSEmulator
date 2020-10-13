@@ -12,7 +12,6 @@
 #include "Stats.h"
 using namespace std;
 
-
 class CPU {
   private:
     static const int NREGS = 32;
@@ -28,10 +27,12 @@ class CPU {
     // Register file
     uint32_t regFile[NREGS];
     uint32_t hi, lo;
-
+    
+    Stats stats;
     ALU alu;
 
-    Stats stats;
+
+
     
     Memory &iMem;
     Memory &dMem;
