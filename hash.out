@@ -1,0 +1,6 @@
+CS 3339 MIPS Simulator
+Running: hash.mips
+
+ 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 1
+
+Program finished at pc = 0x40027c  (39119 instructions executed)

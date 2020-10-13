@@ -1,0 +1,7 @@
+CS 3339 MIPS Simulator
+Running: qsort.mips
+
+ 99 0
+ 0 99
+
+Program finished at pc = 0x400238  (45947 instructions executed)

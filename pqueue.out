@@ -1,0 +1,11 @@
+CS 3339 MIPS Simulator
+Running: pqueue.mips
+
+ 2 -4 6 -8 10 -12 14 -16 18 -20 22 -24 26 -28 30 -32 34
+ 34 30 26 22 18 14 10 6 2 -4 -8 -12 -16 -20 -24 -28 -32
+ 3 -6 9 -12
+ 9 3
+ 15 -18 21 -24 27
+ 27 21 15 -6 -12 -18 -24
+
+Program finished at pc = 0x4005a0  (9544 instructions executed)
