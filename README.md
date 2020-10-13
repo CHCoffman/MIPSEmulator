@@ -1,2 +1,2 @@
 # MIPSEmulator
-Adding on to the emulator project with new features
+MIPS emulator with built in simulations for pipelining, forwarding and cache
