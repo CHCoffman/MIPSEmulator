@@ -36,6 +36,7 @@ void CPU::run() {
     execute();
     mem();
     writeback();
+    stats.clock();
 
     D(printRegFile());
   }
@@ -107,7 +108,7 @@ void CPU::decode() {
         case 0x08: D(cout << "jr " << regNames[rs]);
                     writeDest = false; // result doesn't need to be in register
                     aluSrc1 = regFile[rs]; stats.registerSrc(rs);
-                    aluSrc2 = regFile[REG_ZERO];stats.registerSrc(REG_ZERO);
+                    aluSrc2 = regFile[REG_ZERO];
                     aluOp = ADD;
                     pc = aluSrc1;
                     stats.flush(2);
@@ -116,36 +117,36 @@ void CPU::decode() {
                     writeDest = true;
                     destReg = rd; stats.registerDest(rd);
                     aluOp = ADD;
-                    aluSrc1 = hi;stats.registerSrc(REG_HILO);
-                    aluSrc2 = regFile[REG_ZERO]; stats.registerSrc(REG_ZERO);// just moving so use $zero at 2
+                    aluSrc1 = hi; stats.registerSrc(REG_HILO);
+                    aluSrc2 = regFile[REG_ZERO];// just moving so use $zero at 2
                    break;
         case 0x12: D(cout << "mflo " << regNames[rd]);
                     writeDest = true;
                     aluOp = ADD;
                     destReg = rd; stats.registerDest(rd);
                     aluSrc1 = lo; stats.registerSrc(REG_HILO);
-                    aluSrc2 = regFile[REG_ZERO]; stats.registerSrc(REG_ZERO);
+                    aluSrc2 = regFile[REG_ZERO];
                    break;
         case 0x18: D(cout << "mult " << regNames[rs] << ", " << regNames[rt]);
                     writeDest = false;
-                    opIsMultDiv = true; stats.registerDest(REG_HILO);
-                    aluOp = MUL;
-                    aluSrc1 = regFile[rs];stats.registerSrc(rs);
-                    aluSrc2 = regFile[rt];stats.registerSrc(rt);
+                    opIsMultDiv = true;
+                    aluOp = MUL; stats.registerDest(REG_HILO);
+                    aluSrc1 = regFile[rs]; stats.registerSrc(rs);
+                    aluSrc2 = regFile[rt]; stats.registerSrc(rt);
                    break;
         case 0x1a: D(cout << "div " << regNames[rs] << ", " << regNames[rt]);
                     writeDest = false;
-                    aluOp = DIV; stats.registerDest(REG_HILO);
-                    opIsMultDiv = true;
-                    aluSrc1 = regFile[rs];stats.registerSrc(rs);
-                    aluSrc2 = regFile[rt];stats.registerSrc(rt);
+                    aluOp = DIV; 
+                    opIsMultDiv = true; stats.registerDest(REG_HILO);
+                    aluSrc1 = regFile[rs]; stats.registerSrc(rs);
+                    aluSrc2 = regFile[rt]; stats.registerSrc(rt);
                    break;
         case 0x21: D(cout << "addu " << regNames[rd] << ", " << regNames[rs] << ", " << regNames[rt]);
                     writeDest = true;
                     destReg = rd; stats.registerDest(rd);
                     aluOp = ADD;
-                    aluSrc1 = regFile[rs];stats.registerSrc(rs);
-                    aluSrc2 = regFile[rt];stats.registerSrc(rt);
+                    aluSrc1 = regFile[rs]; stats.registerSrc(rs);
+                    aluSrc2 = regFile[rt]; stats.registerSrc(rt);
                    break;
         case 0x23: D(cout << "subu " << regNames[rd] << ", " << regNames[rs] << ", " << regNames[rt]);
                     writeDest = true;
@@ -158,8 +159,8 @@ void CPU::decode() {
                     writeDest = true;
                     destReg = rd; stats.registerDest(rd);
                     aluOp = CMP_LT; 
-                    aluSrc1 = regFile[rs];stats.registerSrc(rs);
-                    aluSrc2 = regFile[rt];stats.registerSrc(rt);
+                    aluSrc1 = regFile[rs]; stats.registerSrc(rs);
+                    aluSrc2 = regFile[rt]; stats.registerSrc(rt);
                    break;
         default: cerr << "unimplemented instruction: pc = 0x" << hex << pc - 4 << endl;
       }
@@ -171,10 +172,10 @@ void CPU::decode() {
                break;
     case 0x03: D(cout << "jal " << hex << ((pc & 0xf0000000) | addr << 2)); // P1: pc + 4
                writeDest = true; 
-               destReg = REG_RA; stats.registerDest(destReg);// writes PC+4 to $ra
+               destReg = REG_RA; stats.registerDest(REG_RA);// writes PC+4 to $ra
                aluOp = ADD; // ALU should pass pc thru without changes
-               aluSrc1 = pc;
-               aluSrc2 = regFile[REG_ZERO]; // always reads zero
+               aluSrc1 = pc; stats.registerSrc(aluSrc1);
+               aluSrc2 = regFile[REG_ZERO];  // always reads zero
                pc = (pc & 0xf0000000) | addr << 2;
                stats.flush(2);
                break;
@@ -200,14 +201,14 @@ void CPU::decode() {
                 writeDest = true;
                 destReg = rt; stats.registerDest(rt);
                 aluOp = ADD;
-                aluSrc1 = regFile[rs];stats.registerSrc(rs);
+                aluSrc1 = regFile[rs]; stats.registerSrc(rs);
                 aluSrc2 = simm; // just needs the imm
                break;
     case 0x0c: D(cout << "andi " << regNames[rt] << ", " << regNames[rs] << ", " << dec << uimm);
                 writeDest = true;
                 destReg = rt; stats.registerDest(rt);
                 aluOp = AND;
-                aluSrc1 = regFile[rs];stats.registerSrc(rs);
+                aluSrc1 = regFile[rs]; stats.registerSrc(rs);
                 aluSrc2 = uimm;
                break;
     case 0x0f: D(cout << "lui " << regNames[rt] << ", " << dec << simm); // alusrc needs to be 16 WHY NOT DEBUG
@@ -222,7 +223,7 @@ void CPU::decode() {
                  case 0x0: cout << endl; break;
                  case 0x1: cout << " " << (signed)regFile[rs]; stats.registerSrc(rs);
                            break;
-                 case 0x5: cout << endl << "? "; cin >> regFile[rt];stats.registerDest(rt);
+                 case 0x5: cout << endl << "? "; cin >> regFile[rt]; //stats.registerDest(rt);
                            break;
                  case 0xa: stop = true; break;
                  default: cerr << "unimplemented trap: pc = 0x" << hex << pc - 4 << endl;
@@ -235,7 +236,7 @@ void CPU::decode() {
                 destReg = rt; stats.registerDest(rt);
                 opIsLoad = true;
                 aluOp = ADD;
-                aluSrc1 = regFile[rs];stats.registerSrc(rs);
+                aluSrc1 = regFile[rs]; stats.registerSrc(rs);
                 aluSrc2 = simm;
                break;  // do not interact with memory here - setup control signals for mem()
     case 0x2b: D(cout << "sw " << regNames[rt] << ", " << dec << simm << "(" << regNames[rs] << ")"); //memop
@@ -243,7 +244,7 @@ void CPU::decode() {
                 opIsStore = true;
                 storeData = regFile[rt];//memop?What is this
                 aluOp = ADD;
-                aluSrc1 = regFile[rs];stats.registerSrc(rs);stats.registerSrc(rt); // sinceits using rt above?
+                aluSrc1 = regFile[rs]; stats.registerSrc(rs); // sinceits using rt above?
                 aluSrc2 = simm;
                break;  // same comment as lw
     default: cerr << "unimplemented instruction: pc = 0x" << hex << pc - 4 << endl;
@@ -298,7 +299,7 @@ void CPU::printFinalStats() {
   cout << "\n";
 
   cout << "Cycles : " << stats.getCycles() << endl;
-  cout << "CPI: " << stats.getCycles() << endl;
+  cout << "CPI: " << fixed << setprecision(2) << stats.getCycles() / (double)instructions << endl;
 
   cout << "\nBubbles: " << stats.getBubbles() << endl;
   cout << "Flushes: "<< stats.getFlushes() << endl;
@@ -307,5 +308,5 @@ void CPU::printFinalStats() {
       << "% " << " of instructions" << endl;
   cout << "Branches: " << fixed << setprecision(1) << 100.0 * stats.getBranches() / instructions 
       << "% " << " of instructions" << endl;
-  cout << "% " << "Taken: " << fixed << setprecision(1) << 100.0 * stats.getTaken() / stats.getBranches() << endl;
+  cout << "   % " << "Taken: " << fixed << setprecision(1) << 100.0 * stats.getTaken() / stats.getBranches() << endl;
 }

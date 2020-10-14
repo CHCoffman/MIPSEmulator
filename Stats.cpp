@@ -34,41 +34,47 @@ void Stats::clock() {
 }
 
 void Stats::registerSrc(int r) {
+  int bubs; // needed bubble counter
   // check dependency, where is it in the pipeline
   //then count bubbles to put in pipeline
-  for(int i = EXE1; i < WB; i++){
-    int bubs = 0; // num of bubbles needed
-    if(((resultReg[i] == r) && (r != 0))){
-      bubs = WB - i;
-
-      //then bubble necessary amount
+  if(r == 0)
+  {
+    return;
+  }
+  for(int i = ID; i < WB; i++){
+    if(r == resultReg[i]){
+      bubs = WB - i;     
+      //bubbles++;
+     //then bubble necessary amount in pipeline
       while(bubs > 0){
         bubble();
-        bubs = bubs - 1;
+        bubs--;      
       }
-      break;
     }
   }
-
 }
 // result in id
 void Stats::registerDest(int r) {
   resultReg[ID] = r;
 }
-
 void Stats::flush(int count) { // count == how many ops to flush
   //After j beq or bne flush instructions
-  for(int i; i < count; i++){
-    flushes++;
-    clock(); // inc cycle to get to IF1
-  }
+  for(int i = 0; i < count; i++){
+    flushes++; 
+    clock();
+  } 
 }
-
 void Stats::bubble() {
-  //NOPS
-  bubbles++;
+  for(int i = WB; i > EXE1; i--) {
 
-  clock(); // inc cycle to exe, bubs done decode
+    resultReg[i] = resultReg[i-1];
+  }
+  // inject a NOP in IF1
+  resultReg[EXE1] = -1;
+  //NOPS
+  cycles++;
+  bubbles++;
+  //clock(); // inc cycle bubs done
 }
 
 void Stats::showPipe() {
